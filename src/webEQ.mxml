@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			   xmlns:s="library://ns.adobe.com/flex/spark" 
+			   xmlns:mx="library://ns.adobe.com/flex/mx" minWidth="955" minHeight="600" backgroundColor="#1E5C75">
+	
+	<fx:Script>
+		<![CDATA[
+			protected function button1_clickHandler(event:MouseEvent):void
+			{
+				mainScreen.source="assets/graph_bg.png";
+				
+			}
+			
+			protected function button2_clickHandler(event:MouseEvent):void
+			{
+				mainScreen.source="assets/ratingsSlab.png";
+				
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	
+	
+	<s:Label horizontalCenter="0" y="100" fontFamily="Lucida Console" fontSize="48" color="#34282C" text="webEQ"/>
+	<s:BorderContainer id="border" borderStyle="inset"
+					   borderColor="#CCCCCC" borderWeight="4" 
+					   width="900" height="500" backgroundColor="#800080"
+					   verticalCenter="0" horizontalCenter="0">
+		<s:BitmapImage id="mainScreen" verticalCenter="0" horizontalCenter="0" source="@Embed(source='assets/ratingsSlab.png')"/>
+		
+	</s:BorderContainer>
+	
+	<s:Button verticalCenter="{-border.height/2-20}" horizontalCenter="-40"   label="image1" click="button1_clickHandler(event)"/>
+	<s:Button verticalCenter="{-border.height/2-20}" horizontalCenter="40" label="image2" click="button2_clickHandler(event)" />
+	
+	
+</s:Application>
