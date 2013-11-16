@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 minWidth="600" minHeight="407">
+	<fx:Script>
+		<![CDATA[
+			
+			[Bindable] public var instructionsText:String;
+			
+			protected function instructions_closeHandler(event:Event):void
+			{
+				this.dispatchEvent(new Event("windowClosed"));
+				//var eventObj:Event = new Event("windowClosed");
+				//dispatchEvent(eventObj);
+				
+			}
+	
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	
+	<s:BorderContainer width="100%" height="100%" backgroundColor="#deddd6" borderColor="#007C74" borderWeight="2" borderVisible="true" cornerRadius="10">
+		<s:VGroup width="100%"
+				  horizontalAlign="center"
+				  verticalAlign="top"
+				  paddingLeft="20" paddingRight="20" paddingTop="10" paddingBottom="10">
+			<s:HGroup width="100%" verticalAlign="bottom" paddingLeft="5">
+				<s:HGroup width="100%">
+					<s:Label text="INSTRUCTIONS:" fontSize="18" color="#137c74"/>
+				</s:HGroup>	
+				<s:HGroup width="100%" horizontalAlign="right">
+					<s:Button id="closeButton" label="CLOSE" click="instructions_closeHandler(event)" />
+				</s:HGroup>	
+			</s:HGroup>	
+			<s:TextArea id="instruction" editable="false" selectable="true" width="100%" height="345" text="{instructionsText}" borderVisible="false" contentBackgroundAlpha="0" color="#137c74" fontSize="18" paddingTop="20" fontFamily="GothamMedium" verticalScrollPolicy="off"/>
+		</s:VGroup>
+	</s:BorderContainer>
+	
+</s:Group>

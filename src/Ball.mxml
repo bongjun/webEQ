@@ -2,18 +2,21 @@
 <s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
 		 xmlns:s="library://ns.adobe.com/flex/spark" 
 		 xmlns:mx="library://ns.adobe.com/flex/mx"
-		 mouseDown="dragOn(event)"
-		 mouseUp="dragOff(event)">
+		 mouseUp="dragOff(event)"
+		 mouseDown="dragOn(event)">
 	<fx:Declarations>
 		<!-- Place non-visual elements (e.g., services, value objects) here -->
 	</fx:Declarations>
 	<fx:Script>
 		<![CDATA[
 			
+			//
+			
 			/*	private function onInit():void{
 			//	addEventListener(MouseEvent.MOUSE_DOWN, dragOn);
 			addEventListener(MouseEvent.MOUSE_UP, dragOff);
 			}*/
+			
 			
 			private function dragOn(event:MouseEvent):void{
 				startDrag();

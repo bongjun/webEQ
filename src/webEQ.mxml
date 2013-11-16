@@ -1,33 +1,121 @@
 <?xml version="1.0" encoding="utf-8"?>
-<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009" 
-			   xmlns:s="library://ns.adobe.com/flex/spark" 
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009"
+			   xmlns:s="library://ns.adobe.com/flex/spark"
 			   xmlns:mx="library://ns.adobe.com/flex/mx"
 			   xmlns:local="*"
+			   xmlns:dotpositionservice="services.dotpositionservice.*"
+			   minWidth="955" minHeight="600"
 			   applicationComplete="mainApplication_applicationCompleteHandler(event)"
-			   pageTitle="web-EQ"
-			   minWidth="955" minHeight="600" backgroundColor="#1E5C75">
+			   backgroundColor="#1E5C75" currentState="state1" pageTitle="web-EQ">
 	<fx:Declarations>
+		<s:CallResponder id="getAllDot_positionResult"/>
+		<dotpositionservice:DotpositionService id="dotpositionService"
+											   fault="Alert.show(event.fault.faultString + '\n' + event.fault.faultDetail)"
+											   showBusyCursor="true"/>
+		<s:CallResponder id="updateDot_positionResult"/>
+		<s:CallResponder id="storeSessionsResult"/>
 		<!-- Place non-visual elements (e.g., services, value objects) here -->
 	</fx:Declarations>
 	<fx:Script>
 		<![CDATA[
-			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.data.ItemReference;
 			import mx.events.FlexEvent;
+			import mx.events.FlexMouseEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.CallResponder;
+			import mx.rpc.events.ResultEvent;
+			
+			import spark.modules.ModuleLoader;
+			
+			import valueObjects.Dot_position;
 		
 			private var ballArray:Array = new Array();
 			private var numOfBallsOnScreen:int = 0;
-			private var maxNumOfBalls:int = 20;
+			private var maxNumOfBalls:int = 10;
+			private var _instructions1:String="This is a Pop-up Window";
+			
+			private var _dotPositions:ArrayCollection
+			private var _dot_positions:Array= new Array();
+		 	
 			
 			
 			protected function mainApplication_applicationCompleteHandler(event:FlexEvent):void
 			{
 				
+				showPage1Instructions();
+				
 					//add mouse up handler
 	//				this.stage.addEventListener(MouseEvent.MOUSE_UP, stageMouseUpHandler);
 				
-				
+				initialBallPosition();
+	
 			}
 			//listen to mouse up handler on the stage.
+			
+			private function initialBallPosition():void{
+				
+				//		var getAllDot_positionResult:CallResponder = new CallResponder();
+				getAllDot_positionResult.token = dotpositionService.getAllDot_position();
+				getAllDot_positionResult.addEventListener(ResultEvent.RESULT, function():void{
+					
+					_dotPositions=getAllDot_positionResult.lastResult as ArrayCollection;
+					
+					for(var i:int=0; i < _dotPositions.length; i++) {
+						_dot_positions = (_dotPositions.getItemAt(i).values as String).split(",");
+						//_dotPositions.getItemAt(i).values = dot_positions;
+					}
+					//trace(_dotPositions.length);
+				});
+				
+			}
+			
+			private function savingResult():void{
+			
+				var lastPositionX:Array=new Array();
+				var lastPosStr:String="";
+				
+				for(var i:int =0; i<maxNumOfBalls; i++)
+				{
+					lastPositionX[i]=ballArray[i].x;
+					lastPosStr+=(String(lastPositionX[i])+", ");
+				}
+				
+				
+			//	var storeRatingsCR:CallResponder = new CallResponder();
+				storeSessionsResult.token = dotpositionService.storeSessions(lastPosStr);
+				storeSessionsResult.addEventListener(ResultEvent.RESULT, function():void{
+					if(storeSessionsResult.lastResult == 0){
+					//	showErrorDialog("We encountered a problem uploading the final results. If this problem persists, please contact the webmaster.")
+					}
+				});
+			}
+			
+			private function showPage1Instructions():void{
+				//show page1 instructions
+				var instructions:Instructions = popupHandler(Instructions);
+				instructions.instructionsText = _instructions1;
+				instructions.addEventListener("windowClosed", function():void{
+					PopUpManager.removePopUp(instructions);
+				});
+			}
+			
+			private function popupHandler(componentClass:Class, allowMouseDownOutside:Boolean = true):*{
+				//componentClass.setStyle("modalTransparency", 1);
+				var pop:* = PopUpManager.createPopUp(this, componentClass, true);
+				PopUpManager.centerPopUp(pop)
+				/*if(allowMouseDownOutside){
+					pop.addEventListener(FlexMouseEvent.MOUSE_DOWN_OUTSIDE, 
+						function():void{
+							PopUpManager.removePopUp(pop);
+							if(pop is ModuleLoader){
+								pop.unloadModule();
+							}
+						});
+				}*/
+				return(pop);
+			}
 	
 			private function stageMouseUpHandler(e:MouseEvent):void{
 		/*		if(_currentBall != null){
@@ -51,12 +139,12 @@
 			
 			private function drawBall():void
 			{
-				
+			
 				
 				for(var i:int =0; i<maxNumOfBalls; i++)
 				{
 					ballArray[i] = new Ball();
-					ballArray[i].x=60*i+40;
+					ballArray[i].x=_dot_positions[i];
 					ballArray[i].y=130;
 					
 					
@@ -96,12 +184,66 @@
 				
 			}
 			
+			protected function selectSoundToEqScreenButton_clickHandler(event:MouseEvent):void
+			{
+				this.currentState="state2";
+			
+			}
+			
+			
+			protected function getAllDot_position():void
+			{
+				//getAllDot_positionResult.token = dotpositionService.getAllDot_position();
+			}
+			
+			
+			protected function button3_clickHandler(event:MouseEvent):void
+			{
+				savingResult();
+				
+			}
+			
+			
+			protected function storeSessions(session_id:Object, result:Object):void
+			{
+				//storeSessionsResult.token = dotpositionService.storeSessions(session_id, result);
+			}
+			
 		]]>
 	</fx:Script>
 	
-	<s:Group id="ratingsScreenGroup" width="800" height="600" horizontalCenter="0" verticalCenter="0" creationComplete="ratingsScreenGroup_creationCompleteHandler(event)">
+	<s:states>
+		<s:State name="state1"/>
+		<s:State name="state2"/>
+	</s:states>
+	
+	<s:VGroup width="315" height="390" horizontalAlign="left" verticalAlign="top" horizontalCenter="0" verticalCenter="0" paddingTop="0" includeIn="state1">
+		<s:BorderContainer borderColor="black" backgroundColor="#ede2d7" visible="true" height="100%" width="100%">
+			<s:filters>
+				<s:DropShadowFilter inner="true"/>
+			</s:filters>
+			<s:VGroup width="100%" horizontalAlign="left" verticalAlign="top" gap="10" paddingTop="20" paddingLeft="15" paddingRight="15" paddingBottom="10">
+				<s:Label text="ENTER YOUR NAME:"/>
+				<s:TextInput id="userName" width="100%" height="40"/>
+	
+				<s:Line width="100%">
+					<s:stroke>
+						<s:SolidColorStroke weight="1" color="0xCCCCCC"/>
+					</s:stroke>
+				</s:Line>
+				
+				<s:VGroup horizontalAlign="center" width="100%">
+					<s:Button label="BEGIN" id="selectSoundToEqScreen" click="selectSoundToEqScreenButton_clickHandler(event)" height="30" width="140"/>
+				</s:VGroup>
+			</s:VGroup>
+		</s:BorderContainer>
+	</s:VGroup>
+	
+	
+	<s:Group id="ratingsScreenGroup" width="800" height="600" horizontalCenter="0" verticalCenter="0" creationComplete="ratingsScreenGroup_creationCompleteHandler(event)" includeIn="state2">
 		
-		<s:Label verticalCenter="{-border.height/2-70}" horizontalCenter="0" fontFamily="Lucida Console" fontSize="48" color="#34282C" text="webEQ"/>
+		<s:Label verticalCenter="{-border.height/2-80}" horizontalCenter="0" fontFamily="Lucida Console" fontSize="48" color="#34282C" text="webEQ"/>
+		<s:Label verticalCenter="{-border.height/2-45}" horizontalCenter="0" fontFamily="Lucida Console" fontSize="20" color="#34210C" text="NAME: {userName.text}"/>
 		<s:BorderContainer id="border" borderStyle="inset"
 						   borderColor="#CCCCCC" borderWeight="4" 
 						   width="900" height="500" backgroundColor="#800080"
@@ -112,6 +254,7 @@
 		
 		<s:Button verticalCenter="{-border.height/2-20}" horizontalCenter="-40"   label="+" click="button1_clickHandler(event)"/>
 		<s:Button verticalCenter="{-border.height/2-20}" horizontalCenter="40" label="-" click="button2_clickHandler(event)" />
+		<s:Button verticalCenter="{-border.height/2-20}" horizontalCenter="200" label="UPDATE" click="button3_clickHandler(event)"/>
 		
 	</s:Group>
 </s:Application>
