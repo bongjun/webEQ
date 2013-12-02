@@ -9,6 +9,7 @@
 	</fx:Declarations>
 	<fx:Script>
 		<![CDATA[
+			public var gains:Array;
 			
 			//
 			
