@@ -1,5 +1,4 @@
 <?php
-dfs
 /**
  *  README for sample service
  *
